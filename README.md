@@ -10,7 +10,7 @@ https://www.jiyik.com/w/git/git-merge
 
 http://chuquan.me/2022/05/21/understand-principle-of-git/
 
-
+https://developer.aliyun.com/article/716483#slide-17
 
 
 ## git原理与相关概念
@@ -123,7 +123,7 @@ Git 使用一个带有名字的指针对象来指向对应的 SHA 值，这个�
 
 ##### HEAD引用
 
-HEAD 位于 .git/HEAD，这是一个符号引用，指向目前所在的分支。如果 HEAD 文件包含一个 Git 对象的 SHA 值，那么就会处于 “头指针分离” 状态
+HEAD 位于 .git/HEAD，这是一个符号引用，指向目前所在的分支。如果 HEAD 文件内容为 Git 对象的 SHA 值，那么就会处于 “头指针分离” 状态
 
 #### 标签引用
 
@@ -144,60 +144,138 @@ HEAD 位于 .git/HEAD，这是一个符号引用，指向目前所在的分支�
 
 ```
 .git
-├── COMMIT_EDITMSG
-├── FETCH_HEAD
-├── HEAD
-├── ORIG_HEAD
+├── COMMIT_EDITMSG  
+├── FETCH_HEAD 
+├── HEAD 
+├── ORIG_HEAD 
 ├── config
 ├── description
 ├── hooks
-│   ├── applypatch-msg.sample
-│   ├── commit-msg.sample
-│   ├── fsmonitor-watchman.sample
-│   ├── post-update.sample
-│   ├── pre-applypatch.sample
-│   ├── pre-commit.sample
-│   ├── pre-merge-commit.sample
-│   ├── pre-push.sample
-│   ├── pre-rebase.sample
-│   ├── pre-receive.sample
-│   ├── prepare-commit-msg.sample
-│   ├── push-to-checkout.sample
-│   └── update.sample
 ├── index
 ├── info
-│   └── exclude
 ├── logs
-│   ├── HEAD
-│   └── refs
-│       ├── heads
-│       │   └── main
-│       └── remotes
-│           └── origin
-│               ├── HEAD
-│               └── main
 ├── objects
-│   ├── 02
-│   │   └── 0db89ffa220224b8f59279a9600c59341e424e
-│   ├── 0d
-│   │   └── 30dbb9e66cc93293a22e406811b28d1fd3a859
-│   ├── info
-│   └── pack
-│       ├── pack-b812e0455316747fc0bb9f6976369675d0dd4907.idx
-│       └── pack-b812e0455316747fc0bb9f6976369675d0dd4907.pack
-├── packed-refs
 └── refs
+```
+
+#### COMMIT_EDITMSG
+
+此文件是一个临时文件，存储最后一次提交的信息内容
+
+#### FETCH_HEAD
+
+追踪远程分支的拉取与合并，与其相关的命令有 git pull/fetch/merge，存储fetch下来的HEAD
+
+git pull相当于：git fetch + git merge FETCH_HEAD
+
+#### HEAD
+
+永远存储当前位置指针，存储分支名或者哈希值（分离）
+
+#### ORIG_HEAD
+
+在你进行危险操作时备份 HEAD ：reset merge rebase pull
+
+#### config
+
+存储项目本地的 git 设置
+
+git config往里面追加内容，git config --global 影响的则是全局配置文件 ~/.gitconfig
+
+#### description
+
+主要用于 GitWeb 的描述
+
+#### hooks
+
+用于在 git 命令前后做检查或做些自定义动作
+
+```
+├── hooks
+    ├── applypatch-msg.sample # 用于 git am 命令提交信息校验
+    ├── commit-msg.sample # git commit 之前，编辑器退出后触发，传入 COMMIT_EDITMSG 文件名
+    ├── fsmonitor-watchman.sample # 配合 core.fsmonitor 设置来更好监测文件变化
+    ├── post-update.sample # git push 之后，服务端更新 ref 后触发
+    ├── pre-applypatch.sample # 用于 git am 命令执行前动作
+    ├── pre-commit.sample # git commit 之前，commit-msg 通过后触发，譬如校验文件名是否含中文
+    ├── pre-merge-commit.sample # git-merge调用，在合并操作执行成功，获得提交消息之前执行该钩子
+    ├── pre-push.sample # git push 之前触发
+    ├── pre-rebase.sample # git rebase 之前触发，传入 rebase 分支作参数
+    ├── pre-receive.sample # git push 之后，服务端更新 ref 前触发
+    ├── prepare-commit-msg.sample # git commit 之前，编辑器启动之前触发，传入 COMMIT_FILE，COMMIT_SOURCE，SHA1
+    ├── push-to-checkout.sample 
+    └── update.sample # git push 之后，服务端更新每一个 ref 时触发，用于针对每个 ref 作校验等
+```
+
+#### index
+
+简要说一下，index 是一个微型的 linux文件系统，用最经济的方式实现了 inode，这并不是偶然，因为创造这个想法的人同时也是 linux 的创造者 Linus Torvalds。
+
+这个文件也叫做 git 的暂存区(Staging Area)，git add 就是把工作区内的某些文件取部分 stat 抓取的内容并写入 .git/index 文件并存为相应的一条 index entry，多条 index entry 形成一个 tree。
+
+git commit 是把上一步形成的 tree 结构及相应的 blob 存储到 objects/ 文件夹下并同时生成一条 commit 记录。
+
+git reset 是将刚写入 index 文件的 tree 丢弃，并从 HEAD 中恢复一个 tree。
+
+git status 是拿 index 文件中存储的 tree 与工作区内的文件在 stat 层面做对比，并输出变更。
+
+#### info
+
+文件 info/exclude 用于排除规则，与 .gitignore 功能类似
+
+可能会包含文件 info/refs ，用于跟踪各分支的信息
+
+#### logs
+
+```
+├── logs
+    ├── HEAD
+    └── refs
+        ├── heads
+        │   └── main
+        └── remotes
+            └── origin
+                ├── HEAD
+                └── main
+```
+记录了操作信息，git reflog 命令以及像 HEAD@{1} 形式的路径会用到
+
+#### objects
+
+```
+├── objects
+    ├── 02
+    │   └── 0db89ffa220224b8f59279a9600c59341e424e
+    |.....
+    ├── info
+    └── pack
+        ├── pack-b812e0455316747fc0bb9f6976369675d0dd4907.idx
+        └── pack-b812e0455316747fc0bb9f6976369675d0dd4907.pack
+```
+
+存储git对象，上面讲过
+
+对于pack：存储git打包objects后的pack
+
+#### refs
+
+```
+── refs
     ├── heads
-    │   └── main
+    │   ├── dev1
+    │   └── main
     ├── remotes
-    │   └── origin
-    │       ├── HEAD
-    │       └── main
+    │   └── origin
+    │       ├── HEAD
+    │       └── main
     └── tags
 ```
 
+refs/heads/ 文件夹内的 ref 一般通过 git branch 生成。git show-ref --heads 可以查看。
 
+refs/tags/ 文件夹内的 ref 一般通过 git tag 生成。git show-ref --tags 可以查看。
 
+内容存储的都是对应object的哈希值
 
 
 
