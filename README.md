@@ -4,8 +4,6 @@
 
 参考链接：
 
-https://blog.csdn.net/qq_32452623/category_6675038.html
-
 https://www.jiyik.com/w/git/git-merge
 
 http://chuquan.me/2022/05/21/understand-principle-of-git/
