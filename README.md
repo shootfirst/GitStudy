@@ -58,11 +58,61 @@ git init命令会创建一个新的 Git 仓库库。它可用于将现有的、�
 
 将文件添加到暂存区
 
+#### git restore
+
+还原工作区
+
+git restore --staged 文件名： 将暂存区的修改恢复到工作区（包括文件删除，新增）
+
+git restore 文件名：丢弃工作区的修改（不包括文件删除，新增）
+
 #### git stash
 
 暂时隐藏我们工作区和暂存区的修改，让我们切换其他分支处理完事情后回来继续工作
 
+git stash list
 
+git stash pop
+
+git stash save "此次stash的message"
+
+git stash drop $stashid
+
+
+
+### Show Status
+
+#### git diff
+
+作用是比较更改
+
+下面是git diff的输出格式
+
+比较输入：
+diff --git a/README.md b/README.md
+
+元数据：忽略
+index ae53de2..d0d4980 100644
+
+变化标记：
+--- a/README.md
++++ b/README.md
+
+差异块：从62行开始提取了六行，从34行开始添加了25行
+@@ -62,6 +62,25 @@ 
+
+-删除的内容
++新增的内容
+
+#### git status
+
+展示当前工作目录、暂存区和当前分支的状态
+
+#### git log
+
+查看当前分支的历史提交情况
+
+#### git reflog
 
 
 
@@ -89,13 +139,19 @@ git init命令会创建一个新的 Git 仓库库。它可用于将现有的、�
 + 删除本地分支
 + 手动建立追踪关系
 
-#### git switch
-
 #### git checkout
 
 HEAD指针：既可以指向快照节点，也可以指向branch
 当指向branch的时候，提交后会随着branch指针一起向后移动
 当不指向branch的时候，提交的时候会在一个detached状态
+
+git checkout 操控三个不同对实体 文件，提交和分支（分支属于特殊的提交）
+
+git checkout 节点哈希值：将分离HEAD指向此commit
+
+git checkout 分支名：将HEAD指向指定分支
+
+git checkout 分支名/节点哈希值 文件路径名：签出文件
 
 #### git merge
 
@@ -131,6 +187,12 @@ git reset --soft $HASH #移动HEAD到指向节点
 git reset --mixed $HASH #修改HEAD和index到指向节点
 
 git reset --hard $HASH #修改三者内容，前面的commit将会成为孤儿节点，会被git 定期垃圾回收
+
+#### git revert
+
+git revert命令可以被认为是“撤消”命令。但是它不是传统的撤消操作。
+不是从项目历史中删除提交，而是计算出如何反转要撤销的提交所引入的更改，
+并附加一个新的提交及生成的反向内容。这种方式可以防止 Git 丢失历史记录
 
 
 
