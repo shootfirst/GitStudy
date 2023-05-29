@@ -114,6 +114,9 @@ index ae53de2..d0d4980 100644
 
 #### git reflog
 
+能够记录几乎所有本地仓库的改变，包括所有分支的commit提交，以及已经被删除的commit
+
+
 
 
 
@@ -151,7 +154,7 @@ git checkout 节点哈希值：将分离HEAD指向此commit
 
 git checkout 分支名：将HEAD指向指定分支
 
-git checkout 分支名/节点哈希值 文件路径名：签出文件
+git checkout 分支名/节点哈希值 文件路径名：签出文件 ，将当前工作区文件修改(省略分支名则恢复上一次commit)
 
 #### git merge
 
@@ -193,6 +196,22 @@ git reset --hard $HASH #修改三者内容，前面的commit将会成为孤儿�
 git revert命令可以被认为是“撤消”命令。但是它不是传统的撤消操作。
 不是从项目历史中删除提交，而是计算出如何反转要撤销的提交所引入的更改，
 并附加一个新的提交及生成的反向内容。这种方式可以防止 Git 丢失历史记录
+
+#### git cherry-pick
+
+它允许我们通过引用选择任意 Git 提交并将其附加到当前工作分支的 HEAD
+
+```
+a - b - c - d   Main
+         \
+           e - f - g Feature
+
+$ (Main) git cherry-pick f-hash
+
+a - b - c - d - f   Main
+         \
+           e - f - g Feature
+```
 
 
 
